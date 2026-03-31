@@ -16,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload, Loader2 } from "lucide-react";
-import type { Student } from "@/types";
-import { studentApi } from "@/lib/api";
+import type { Customer } from "@/types";
+import { customerApi } from "@/lib/api";
 
 const schema = z.object({
   nic: z
@@ -34,13 +34,13 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 interface Props {
-  student?: Student;
+  customer?: Customer;
   onSubmit: (values: FormValues, picture?: File) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
 }
 
-export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
+export function CustomerForm({ customer, onSubmit, onCancel, loading }: Props) {
   const [picture, setPicture] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -48,11 +48,11 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      nic: student?.nic ?? "",
-      name: student?.name ?? "",
-      address: student?.address ?? "",
-      mobile: student?.mobile ?? "",
-      email: student?.email ?? "",
+      nic: customer?.nic ?? "",
+      name: customer?.name ?? "",
+      address: customer?.address ?? "",
+      mobile: customer?.mobile ?? "",
+      email: customer?.email ?? "",
     },
   });
 
@@ -67,7 +67,7 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
     await onSubmit(values, picture ?? undefined);
   };
 
-  const initials = (student?.name ?? "?")
+  const initials = (customer?.name ?? "?")
     .split(" ")
     .map((w) => w[0])
     .join("")
@@ -80,7 +80,9 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
         {/* Avatar upload */}
         <div className="flex flex-col items-center gap-3">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={preview ?? (student ? studentApi.getPictureUrl(student.nic) : undefined)} />
+            <AvatarImage
+              src={preview ?? (customer ? customerApi.getPictureUrl(customer.nic) : undefined)}
+            />
             <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl font-bold">
               {initials}
             </AvatarFallback>
@@ -102,8 +104,10 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
             <Upload className="h-3.5 w-3.5" />
             {picture ? "Change Photo" : "Upload Photo"}
           </Button>
-          {!student && (
-            <p className="text-xs text-slate-400">Photo required for new student</p>
+          {!customer && (
+            <p className="text-xs text-slate-400">
+              Photo required for new customer
+            </p>
           )}
         </div>
 
@@ -118,8 +122,8 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
                   <Input
                     placeholder="123456789V"
                     {...field}
-                    disabled={!!student}
-                    className={student ? "bg-slate-50" : ""}
+                    disabled={!!customer}
+                    className={customer ? "bg-slate-50" : ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -190,7 +194,7 @@ export function StudentForm({ student, onSubmit, onCancel, loading }: Props) {
           </Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {student ? "Update Student" : "Create Student"}
+            {customer ? "Update Customer" : "Create Customer"}
           </Button>
         </div>
       </form>

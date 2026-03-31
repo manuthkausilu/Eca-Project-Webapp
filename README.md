@@ -27,9 +27,9 @@ This project is part of the Enterprise Cloud Application (ECA) module in the Hig
 | Page | Path | Description |
 |---|---|---|
 | Dashboard | `/dashboard` | Stats overview, recent enrollments, quick actions |
-| Students | `/students` | Create, view, edit, delete students with avatar display |
-| Programs | `/programs` | Create, view, edit, delete programs (card & table views) |
-| Enrollments | `/enrollments` | Create, view, edit, delete enrollments with program filtering |
+| Customers | `/customers` | Create, view, edit, delete customers with avatar display |
+| Products | `/products` | Create, view, edit, delete products (card & table views) |
+| Orders | `/orders` | Create, view, edit, delete orders with product filtering |
 
 ## Project Structure
 
@@ -39,21 +39,21 @@ webapp/
 │   ├── layout.tsx            # Root layout (Sidebar + Header + Toaster)
 │   ├── page.tsx              # Redirects to /dashboard
 │   ├── dashboard/page.tsx    # Dashboard overview
-│   ├── students/page.tsx     # Student management
-│   ├── programs/page.tsx     # Program management
-│   └── enrollments/page.tsx  # Enrollment management
+│   ├── customers/page.tsx     # Customer management
+│   ├── products/page.tsx      # Product management
+│   └── orders/page.tsx        # Order management
 ├── components/
 │   ├── layout/
 │   │   ├── sidebar.tsx       # Fixed navigation sidebar
 │   │   └── header.tsx        # Sticky top header
-│   ├── students/
-│   │   └── student-form.tsx  # Student create/edit form
-│   ├── programs/
-│   │   └── program-form.tsx  # Program create/edit form
-│   └── enrollments/
-│       └── enrollment-form.tsx # Enrollment create/edit form
+│   ├── customers/
+│   │   └── customer-form.tsx  # Customer create/edit form
+│   ├── products/
+│   │   └── product-form.tsx   # Product create/edit form
+│   └── orders/
+│       └── order-form.tsx     # Order create/edit form
 ├── lib/
-│   └── api.ts                # Axios API client (studentApi, programApi, enrollmentApi)
+│   └── api.ts                # Axios API client (customerApi, productApi, orderApi)
 ├── types/
 │   └── index.ts              # Shared TypeScript types
 └── .env.local                # Environment variables

@@ -22,44 +22,44 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { studentApi, programApi } from "@/lib/api";
-import type { Student, Program, Enrollment } from "@/types";
+import { customerApi, productApi } from "@/lib/api";
+import type { Customer, Order, Product } from "@/types";
 
 const schema = z.object({
-  studentId: z.string().min(1, "Student is required"),
-  programId: z.string().min(1, "Program is required"),
+  customerId: z.string().min(1, "Customer is required"),
+  productId: z.string().min(1, "Product is required"),
   date: z.string().min(1, "Date is required"),
 });
 
-export type EnrollmentFormValues = z.infer<typeof schema>;
+export type OrderFormValues = z.infer<typeof schema>;
 
 interface Props {
-  enrollment?: Enrollment;
-  onSubmit: (values: EnrollmentFormValues) => Promise<void>;
+  order?: Order;
+  onSubmit: (values: OrderFormValues) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
 }
 
-export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Props) {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
+export function OrderForm({ order, onSubmit, onCancel, loading }: Props) {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    Promise.all([studentApi.getAll(), programApi.getAll()])
-      .then(([s, p]) => {
-        setStudents(s);
-        setPrograms(p);
+    Promise.all([customerApi.getAll(), productApi.getAll()])
+      .then(([c, p]) => {
+        setCustomers(c);
+        setProducts(p);
       })
       .finally(() => setFetching(false));
   }, []);
 
-  const form = useForm<EnrollmentFormValues>({
+  const form = useForm<OrderFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      studentId: enrollment?.studentId ?? "",
-      programId: enrollment?.programId ?? "",
-      date: enrollment?.date ?? new Date().toISOString().split("T")[0],
+      customerId: order?.customerId ?? "",
+      productId: order?.productId ?? "",
+      date: order?.date ?? new Date().toISOString().split("T")[0],
     },
   });
 
@@ -68,10 +68,10 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="studentId"
+          name="customerId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Student *</FormLabel>
+              <FormLabel>Customer *</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -79,14 +79,16 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={fetching ? "Loading…" : "Select a student"} />
+                    <SelectValue
+                      placeholder={fetching ? "Loading…" : "Select a customer"}
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {students.map((s) => (
-                    <SelectItem key={s.nic} value={s.nic}>
-                      {s.name}{" "}
-                      <span className="text-slate-400 text-xs">({s.nic})</span>
+                  {customers.map((c) => (
+                    <SelectItem key={c.nic} value={c.nic}>
+                      {c.name}{" "}
+                      <span className="text-slate-400 text-xs">({c.nic})</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -98,10 +100,10 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
 
         <FormField
           control={form.control}
-          name="programId"
+          name="productId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Program *</FormLabel>
+              <FormLabel>Product *</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -109,13 +111,15 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={fetching ? "Loading…" : "Select a program"} />
+                    <SelectValue
+                      placeholder={fetching ? "Loading…" : "Select a product"}
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {programs.map((p) => (
-                    <SelectItem key={p.programId} value={p.programId}>
-                      {p.programId} – {p.description}
+                  {products.map((p) => (
+                    <SelectItem key={p.productId} value={p.productId}>
+                      {p.productId} – {p.description}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -130,7 +134,7 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
           name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enrollment Date *</FormLabel>
+              <FormLabel>Order Date *</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -145,7 +149,7 @@ export function EnrollmentForm({ enrollment, onSubmit, onCancel, loading }: Prop
           </Button>
           <Button type="submit" disabled={loading || fetching}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {enrollment ? "Update Enrollment" : "Create Enrollment"}
+            {order ? "Update Order" : "Create Order"}
           </Button>
         </div>
       </form>

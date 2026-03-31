@@ -14,9 +14,9 @@ import { useSidebar } from "./sidebar-context";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Students", href: "/students", icon: Users },
-  { label: "Programs", href: "/programs", icon: BookOpen },
-  { label: "Enrollments", href: "/enrollments", icon: GraduationCap },
+  { label: "Customers", href: "/customers", icon: Users },
+  { label: "Products", href: "/products", icon: BookOpen },
+  { label: "Orders", href: "/orders", icon: GraduationCap },
 ];
 
 export function Sidebar() {
@@ -52,7 +52,7 @@ export function Sidebar() {
             />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-semibold">Campus Portal</p>
+            <p className="text-sm font-semibold">POS</p>
             <p className="text-xs text-slate-400">Management System</p>
           </div>
         </div>
@@ -82,9 +82,9 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-700">
-          <p className="text-xs text-slate-600">Capstone Project</p>
-          <p className="text-xs text-slate-500">Enterprise Cloud Architecture</p>
-          <p className="text-xs text-slate-600 mt-1">ECA, HDSE @ IJSE</p>
+          <p className="text-xs text-slate-600">ECA Project</p>
+          <p className="text-xs text-slate-500">POS System</p>
+          <p className="text-xs text-slate-600 mt-1">Developed by Manuth Kausilu</p>
         </div>
       </aside>
     </>

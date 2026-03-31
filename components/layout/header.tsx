@@ -7,9 +7,9 @@ import { useSidebar } from "./sidebar-context";
 
 const titles: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/students": "Manage Students",
-  "/programs": "Manage Programs",
-  "/enrollments": "Manage Enrollments",
+  "/customers": "Manage Customers",
+  "/products": "Manage Products",
+  "/orders": "Manage Orders",
 };
 
 function getTitle(pathname: string) {

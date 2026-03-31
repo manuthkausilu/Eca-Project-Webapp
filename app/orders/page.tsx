@@ -43,39 +43,39 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { enrollmentApi, programApi, studentApi } from "@/lib/api";
-import type { Enrollment, Program } from "@/types";
+import { orderApi, productApi, customerApi } from "@/lib/api";
+import type { Order, Product } from "@/types";
 import {
-  EnrollmentForm,
-  type EnrollmentFormValues,
-} from "@/components/enrollments/enrollment-form";
+  OrderForm,
+  type OrderFormValues,
+} from "@/components/orders/order-form";
 
-function EnrollmentsContent() {
+function OrdersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [programFilter, setProgramFilter] = useState("all");
+  const [productFilter, setProductFilter] = useState("all");
   const [formOpen, setFormOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Enrollment | undefined>();
+  const [editTarget, setEditTarget] = useState<Order | undefined>();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Enrollment | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [enr, progs] = await Promise.all([
-        enrollmentApi.getAll(),
-        programApi.getAll(),
+      const [ord, prods] = await Promise.all([
+        orderApi.getAll(),
+        productApi.getAll(),
       ]);
-      setEnrollments(enr);
-      setPrograms(progs);
+      setOrders(ord);
+      setProducts(prods);
     } catch {
-      toast.error("Failed to load enrollments");
+      toast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }
@@ -92,16 +92,16 @@ function EnrollmentsContent() {
     }
   }, [searchParams]);
 
-  const filtered = enrollments.filter((e) => {
+  const filtered = orders.filter((e) => {
     const matchesSearch =
-      (e.student?.name ?? e.studentId)
+      (e.customer?.name ?? e.customerId)
         .toLowerCase()
         .includes(search.toLowerCase()) ||
-      e.studentId.toLowerCase().includes(search.toLowerCase()) ||
-      e.programId.toLowerCase().includes(search.toLowerCase());
-    const matchesProgram =
-      programFilter === "all" || e.programId === programFilter;
-    return matchesSearch && matchesProgram;
+      e.customerId.toLowerCase().includes(search.toLowerCase()) ||
+      e.productId.toLowerCase().includes(search.toLowerCase());
+    const matchesProduct =
+      productFilter === "all" || e.productId === productFilter;
+    return matchesSearch && matchesProduct;
   });
 
   const openNew = () => {
@@ -109,25 +109,25 @@ function EnrollmentsContent() {
     setFormOpen(true);
   };
 
-  const openEdit = (enrollment: Enrollment) => {
-    setEditTarget(enrollment);
+  const openEdit = (order: Order) => {
+    setEditTarget(order);
     setFormOpen(true);
   };
 
   const handleFormClose = () => {
     setFormOpen(false);
-    router.replace("/enrollments");
+    router.replace("/orders");
   };
 
-  const handleFormSubmit = async (values: EnrollmentFormValues) => {
+  const handleFormSubmit = async (values: OrderFormValues) => {
     setSubmitting(true);
     try {
       if (editTarget?.id) {
-        await enrollmentApi.update(editTarget.id, values);
-        toast.success("Enrollment updated successfully");
+        await orderApi.update(editTarget.id, values);
+        toast.success("Order updated successfully");
       } else {
-        await enrollmentApi.create(values);
-        toast.success("Enrollment created successfully");
+        await orderApi.create(values);
+        toast.success("Order created successfully");
       }
       handleFormClose();
       fetchData();
@@ -142,12 +142,12 @@ function EnrollmentsContent() {
   const handleDelete = async () => {
     if (!deleteTarget?.id) return;
     try {
-      await enrollmentApi.delete(deleteTarget.id);
-      toast.success("Enrollment deleted");
+      await orderApi.delete(deleteTarget.id);
+      toast.success("Order deleted");
       setDeleteOpen(false);
       fetchData();
     } catch {
-      toast.error("Failed to delete enrollment");
+      toast.error("Failed to delete order");
     }
   };
 
@@ -177,22 +177,22 @@ function EnrollmentsContent() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 className="pl-9"
-                placeholder="Search student or program…"
+                placeholder="Search customer or product…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-slate-400 shrink-0" />
-              <Select value={programFilter} onValueChange={setProgramFilter}>
+              <Select value={productFilter} onValueChange={setProductFilter}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All Programs" />
+                  <SelectValue placeholder="All Products" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Programs</SelectItem>
-                  {programs.map((p) => (
-                    <SelectItem key={p.programId} value={p.programId}>
-                      {p.programId} – {p.description}
+                  <SelectItem value="all">All Products</SelectItem>
+                  {products.map((p) => (
+                    <SelectItem key={p.productId} value={p.productId}>
+                      {p.productId} – {p.description}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -201,23 +201,23 @@ function EnrollmentsContent() {
           </div>
           <Button onClick={openNew} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
-            New Enrollment
+            New Order
           </Button>
         </div>
 
         {/* Stats row */}
         <div className="flex items-center gap-4 text-sm text-slate-500">
           <span>
-            <strong className="text-slate-900">{filtered.length}</strong> enrollment
+            <strong className="text-slate-900">{filtered.length}</strong> order
             {filtered.length !== 1 ? "s" : ""}
           </span>
-          {programFilter !== "all" && (
+          {productFilter !== "all" && (
             <Badge
               variant="secondary"
               className="cursor-pointer"
-              onClick={() => setProgramFilter("all")}
+              onClick={() => setProductFilter("all")}
             >
-              Program: {programFilter} ×
+              Product: {productFilter} ×
             </Badge>
           )}
         </div>
@@ -228,10 +228,10 @@ function EnrollmentsContent() {
             <TableHeader>
               <TableRow className="bg-slate-50">
                 <TableHead className="w-10">#</TableHead>
-                <TableHead>Student</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead>NIC</TableHead>
-                <TableHead>Program</TableHead>
-                <TableHead>Enrollment Date</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Order Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -252,9 +252,9 @@ function EnrollmentsContent() {
                     colSpan={6}
                     className="text-center py-10 text-slate-400"
                   >
-                    {search || programFilter !== "all"
-                      ? "No matching enrollments"
-                      : "No enrollments yet. Create one!"}
+                    {search || productFilter !== "all"
+                      ? "No matching orders"
+                      : "No orders yet. Create one!"}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -267,25 +267,25 @@ function EnrollmentsContent() {
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
                           <AvatarImage
-                            src={studentApi.getPictureUrl(e.studentId)}
+                            src={customerApi.getPictureUrl(e.customerId)}
                           />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-xs font-bold">
-                            {initials(e.student?.name ?? e.studentId)}
+                            {initials(e.customer?.name ?? e.customerId)}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium text-slate-900">
-                          {e.student?.name ?? e.studentId}
+                          {e.customer?.name ?? e.customerId}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono text-xs">
-                        {e.studentId}
+                        {e.customerId}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-                        {e.programId}
+                        {e.productId}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-600">
@@ -324,11 +324,11 @@ function EnrollmentsContent() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editTarget ? "Edit Enrollment" : "New Enrollment"}
+              {editTarget ? "Edit Order" : "New Order"}
             </DialogTitle>
           </DialogHeader>
-          <EnrollmentForm
-            enrollment={editTarget}
+          <OrderForm
+            order={editTarget}
             onSubmit={handleFormSubmit}
             onCancel={handleFormClose}
             loading={submitting}
@@ -343,13 +343,12 @@ function EnrollmentsContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Enrollment</AlertDialogTitle>
+            <AlertDialogTitle>Delete Order</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete enrollment{" "}
+              Are you sure you want to delete order{" "}
               <strong>#{deleteTarget?.id}</strong> for{" "}
-              <strong>{deleteTarget?.student?.name ?? deleteTarget?.studentId}</strong>{" "}
-              in program <strong>{deleteTarget?.programId}</strong>? This action
-              cannot be undone.
+              <strong>{deleteTarget?.customer?.name ?? deleteTarget?.customerId}</strong>{" "}
+              in product <strong>{deleteTarget?.productId}</strong>? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -367,10 +366,10 @@ function EnrollmentsContent() {
   );
 }
 
-export default function EnrollmentsPage() {
+export default function OrdersPage() {
   return (
     <Suspense>
-      <EnrollmentsContent />
+      <OrdersContent />
     </Suspense>
   );
 }

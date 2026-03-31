@@ -1,5 +1,5 @@
-// Student types
-export interface Student {
+// Customer types
+export interface Customer {
   nic: string;
   name: string;
   address: string;
@@ -8,7 +8,7 @@ export interface Student {
   picture?: string;
 }
 
-export interface StudentFormData {
+export interface CustomerFormData {
   nic: string;
   name: string;
   address: string;
@@ -17,19 +17,19 @@ export interface StudentFormData {
   picture?: File | null;
 }
 
-// Program types
-export interface Program {
-  programId: string;
+// Product types
+export interface Product {
+  productId: string;
   description: string;
 }
 
-export interface ProgramFormData {
-  programId: string;
+export interface ProductFormData {
+  productId: string;
   description: string;
 }
 
-// Enrollment types
-export interface StudentSummary {
+// Order types
+export interface CustomerSummary {
   name: string;
   address: string;
   mobile: string;
@@ -37,18 +37,18 @@ export interface StudentSummary {
   picture?: string;
 }
 
-export interface Enrollment {
+export interface Order {
   id?: number;
   date: string;
-  studentId: string;
-  programId: string;
-  student?: StudentSummary;
+  customerId: string;
+  productId: string;
+  customer?: CustomerSummary;
 }
 
-export interface EnrollmentFormData {
+export interface OrderFormData {
   date: string;
-  studentId: string;
-  programId: string;
+  customerId: string;
+  productId: string;
 }
 
 // API response wrapper

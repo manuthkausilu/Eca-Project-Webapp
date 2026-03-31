@@ -3,12 +3,11 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Search, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -34,38 +33,38 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { programApi } from "@/lib/api";
-import type { Program } from "@/types";
-import { ProgramForm, type ProgramFormValues } from "@/components/programs/program-form";
+import { productApi } from "@/lib/api";
+import type { Product } from "@/types";
+import { ProductForm, type ProductFormValues } from "@/components/products/product-form";
 
-function ProgramsContent() {
+function ProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Program | undefined>();
+  const [editTarget, setEditTarget] = useState<Product | undefined>();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Program | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchPrograms = useCallback(async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await programApi.getAll();
-      setPrograms(data);
+      const data = await productApi.getAll();
+      setProducts(data);
     } catch {
-      toast.error("Failed to load programs");
+      toast.error("Failed to load products");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPrograms();
-  }, [fetchPrograms]);
+    fetchProducts();
+  }, [fetchProducts]);
 
   useEffect(() => {
     if (searchParams.get("action") === "new") {
@@ -74,9 +73,9 @@ function ProgramsContent() {
     }
   }, [searchParams]);
 
-  const filtered = programs.filter(
+  const filtered = products.filter(
     (p) =>
-      p.programId.toLowerCase().includes(search.toLowerCase()) ||
+      p.productId.toLowerCase().includes(search.toLowerCase()) ||
       p.description.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -85,28 +84,28 @@ function ProgramsContent() {
     setFormOpen(true);
   };
 
-  const openEdit = (program: Program) => {
-    setEditTarget(program);
+  const openEdit = (product: Product) => {
+    setEditTarget(product);
     setFormOpen(true);
   };
 
   const handleFormClose = () => {
     setFormOpen(false);
-    router.replace("/programs");
+    router.replace("/products");
   };
 
-  const handleFormSubmit = async (values: ProgramFormValues) => {
+  const handleFormSubmit = async (values: ProductFormValues) => {
     setSubmitting(true);
     try {
       if (editTarget) {
-        await programApi.update(editTarget.programId, values);
-        toast.success("Program updated successfully");
+        await productApi.update(editTarget.productId, values);
+        toast.success("Product updated successfully");
       } else {
-        await programApi.create(values);
-        toast.success("Program created successfully");
+        await productApi.create(values);
+        toast.success("Product created successfully");
       }
       handleFormClose();
-      fetchPrograms();
+      fetchProducts();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Operation failed";
       toast.error(msg);
@@ -118,12 +117,12 @@ function ProgramsContent() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await programApi.delete(deleteTarget.programId);
-      toast.success("Program deleted");
+      await productApi.delete(deleteTarget.productId);
+      toast.success("Product deleted");
       setDeleteOpen(false);
-      fetchPrograms();
+      fetchProducts();
     } catch {
-      toast.error("Failed to delete program");
+      toast.error("Failed to delete product");
     }
   };
 
@@ -143,27 +142,27 @@ function ProgramsContent() {
           </div>
           <Button onClick={openNew} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
-            Add Program
+            Add Product
           </Button>
         </div>
 
-        {/* Table view for many programs */}
+        {/* Table view for many products */}
         {!loading && filtered.length > 0 && (
           <div className="rounded-lg border bg-white shadow-sm mt-2">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50">
-                  <TableHead>Program ID</TableHead>
+                  <TableHead>Product ID</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((p) => (
-                  <TableRow key={p.programId}>
+                  <TableRow key={p.productId}>
                     <TableCell>
                       <Badge variant="outline" className="font-mono">
-                        {p.programId}
+                        {p.productId}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-600">{p.description}</TableCell>
@@ -195,7 +194,7 @@ function ProgramsContent() {
         )}
 
         <p className="text-xs text-slate-400">
-          {filtered.length} program{filtered.length !== 1 ? "s" : ""} shown
+          {filtered.length} product{filtered.length !== 1 ? "s" : ""} shown
         </p>
       </div>
 
@@ -204,11 +203,11 @@ function ProgramsContent() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editTarget ? "Edit Program" : "Add New Program"}
+              {editTarget ? "Edit Product" : "Add New Product"}
             </DialogTitle>
           </DialogHeader>
-          <ProgramForm
-            program={editTarget}
+          <ProductForm
+            product={editTarget}
             onSubmit={handleFormSubmit}
             onCancel={handleFormClose}
             loading={submitting}
@@ -223,10 +222,10 @@ function ProgramsContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Program</AlertDialogTitle>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete program{" "}
-              <strong>{deleteTarget?.programId}</strong> —{" "}
+              Are you sure you want to delete product{" "}
+              <strong>{deleteTarget?.productId}</strong> —{" "}
               {deleteTarget?.description}? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -245,10 +244,10 @@ function ProgramsContent() {
   );
 }
 
-export default function ProgramsPage() {
+export default function ProductsPage() {
   return (
     <Suspense>
-      <ProgramsContent />
+      <ProductsContent />
     </Suspense>
   );
 }

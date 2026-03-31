@@ -34,39 +34,39 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { studentApi } from "@/lib/api";
-import type { Student } from "@/types";
-import { StudentForm } from "@/components/students/student-form";
+import { customerApi } from "@/lib/api";
+import type { Customer } from "@/types";
+import { CustomerForm } from "@/components/customers/customer-form";
 
-function StudentsContent() {
+function CustomersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [students, setStudents] = useState<Student[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Student | undefined>();
+  const [editTarget, setEditTarget] = useState<Customer | undefined>();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
-  const [viewTarget, setViewTarget] = useState<Student | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [viewTarget, setViewTarget] = useState<Customer | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchStudents = useCallback(async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await studentApi.getAll();
-      setStudents(data);
+      const data = await customerApi.getAll();
+      setCustomers(data);
     } catch {
-      toast.error("Failed to load students");
+      toast.error("Failed to load customers");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   useEffect(() => {
     if (searchParams.get("action") === "new") {
@@ -75,7 +75,7 @@ function StudentsContent() {
     }
   }, [searchParams]);
 
-  const filtered = students.filter(
+  const filtered = customers.filter(
     (s) =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.nic.toLowerCase().includes(search.toLowerCase()) ||
@@ -87,14 +87,14 @@ function StudentsContent() {
     setFormOpen(true);
   };
 
-  const openEdit = (student: Student) => {
-    setEditTarget(student);
+  const openEdit = (customer: Customer) => {
+    setEditTarget(customer);
     setFormOpen(true);
   };
 
   const handleFormClose = () => {
     setFormOpen(false);
-    router.replace("/students");
+    router.replace("/customers");
   };
 
   const handleFormSubmit = async (
@@ -110,14 +110,14 @@ function StudentsContent() {
     setSubmitting(true);
     try {
       if (editTarget) {
-        await studentApi.update(editTarget.nic, { ...values, picture });
-        toast.success("Student updated successfully");
+        await customerApi.update(editTarget.nic, { ...values, picture });
+        toast.success("Customer updated successfully");
       } else {
-        await studentApi.create({ ...values, picture });
-        toast.success("Student created successfully");
+        await customerApi.create({ ...values, picture });
+        toast.success("Customer created successfully");
       }
       handleFormClose();
-      fetchStudents();
+      fetchCustomers();
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Operation failed";
@@ -130,12 +130,12 @@ function StudentsContent() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await studentApi.delete(deleteTarget.nic);
-      toast.success("Student deleted");
+      await customerApi.delete(deleteTarget.nic);
+      toast.success("Customer deleted");
       setDeleteOpen(false);
-      fetchStudents();
+      fetchCustomers();
     } catch {
-      toast.error("Failed to delete student");
+      toast.error("Failed to delete customer");
     }
   };
 
@@ -163,7 +163,7 @@ function StudentsContent() {
           </div>
           <Button onClick={openNew} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
-            Add Student
+            Add Customer
           </Button>
         </div>
 
@@ -173,7 +173,7 @@ function StudentsContent() {
             <TableHeader>
               <TableRow className="bg-slate-50">
                 <TableHead className="w-12"></TableHead>
-                <TableHead>Student</TableHead>
+                  <TableHead>Customer</TableHead>
                 <TableHead>NIC</TableHead>
                 <TableHead>Mobile</TableHead>
                 <TableHead>Email</TableHead>
@@ -194,39 +194,39 @@ function StudentsContent() {
               ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-10 text-slate-400">
-                    {search ? "No matching students found" : "No students yet. Add one!"}
+                    {search ? "No matching customers found" : "No customers yet. Add one!"}
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((student) => (
-                  <TableRow key={student.nic} className="hover:bg-slate-50">
+                filtered.map((customer) => (
+                  <TableRow key={customer.nic} className="hover:bg-slate-50">
                     <TableCell>
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={studentApi.getPictureUrl(student.nic)}
-                          alt={student.name}
+                          src={customerApi.getPictureUrl(customer.nic)}
+                          alt={customer.name}
                         />
                         <AvatarFallback className="bg-blue-100 text-blue-700 text-xs font-bold">
-                          {initials(student.name)}
+                          {initials(customer.name)}
                         </AvatarFallback>
                       </Avatar>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-slate-900">{student.name}</p>
+                        <p className="font-medium text-slate-900">{customer.name}</p>
                         <p className="text-xs text-slate-400 truncate max-w-[160px]">
-                          {student.address}
+                          {customer.address}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono">
-                        {student.nic}
+                        {customer.nic}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-slate-600">{student.mobile}</TableCell>
+                    <TableCell className="text-slate-600">{customer.mobile}</TableCell>
                     <TableCell className="text-slate-500 text-sm">
-                      {student.email ?? "—"}
+                      {customer.email ?? "—"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -234,7 +234,7 @@ function StudentsContent() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => setViewTarget(student)}
+                          onClick={() => setViewTarget(customer)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -242,7 +242,7 @@ function StudentsContent() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => openEdit(student)}
+                          onClick={() => openEdit(customer)}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -250,7 +250,7 @@ function StudentsContent() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => { setDeleteTarget(student); setDeleteOpen(true); }}
+                          onClick={() => { setDeleteTarget(customer); setDeleteOpen(true); }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -263,7 +263,7 @@ function StudentsContent() {
           </Table>
         </div>
         <p className="text-xs text-slate-400">
-          {filtered.length} student{filtered.length !== 1 ? "s" : ""} shown
+          {filtered.length} customer{filtered.length !== 1 ? "s" : ""} shown
         </p>
       </div>
 
@@ -272,11 +272,11 @@ function StudentsContent() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editTarget ? "Edit Student" : "Add New Student"}
+              {editTarget ? "Edit Customer" : "Add New Customer"}
             </DialogTitle>
           </DialogHeader>
-          <StudentForm
-            student={editTarget}
+          <CustomerForm
+            customer={editTarget}
             onSubmit={handleFormSubmit}
             onCancel={handleFormClose}
             loading={submitting}
@@ -288,14 +288,14 @@ function StudentsContent() {
       <Dialog open={!!viewTarget} onOpenChange={(open) => !open && setViewTarget(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Student Details</DialogTitle>
+            <DialogTitle>Customer Details</DialogTitle>
           </DialogHeader>
           {viewTarget && (
             <div className="space-y-4">
               <div className="flex flex-col items-center gap-3">
                 <Avatar className="h-24 w-24 border-2 border-blue-200">
                   <AvatarImage
-                    src={studentApi.getPictureUrl(viewTarget.nic)}
+                    src={customerApi.getPictureUrl(viewTarget.nic)}
                     alt={viewTarget.name}
                   />
                   <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl font-bold">
@@ -352,7 +352,7 @@ function StudentsContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Student</AlertDialogTitle>
+            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
               <strong>{deleteTarget?.name}</strong> ({deleteTarget?.nic})?
@@ -374,10 +374,10 @@ function StudentsContent() {
   );
 }
 
-export default function StudentsPage() {
+export default function CustomersPage() {
   return (
     <Suspense>
-      <StudentsContent />
+      <CustomersContent />
     </Suspense>
   );
 }

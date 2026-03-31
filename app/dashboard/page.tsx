@@ -5,7 +5,6 @@ import {
   Users,
   BookOpen,
   GraduationCap,
-  TrendingUp,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -14,36 +13,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { studentApi, programApi, enrollmentApi } from "@/lib/api";
-import type { Student, Program, Enrollment } from "@/types";
+import { customerApi, productApi, orderApi } from "@/lib/api";
+import type { Product, Order } from "@/types";
 
 interface Stats {
-  students: number;
-  programs: number;
-  enrollments: number;
+  customers: number;
+  products: number;
+  orders: number;
 }
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [recentEnrollments, setRecentEnrollments] = useState<Enrollment[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [students, progs, enrollments] = await Promise.all([
-          studentApi.getAll(),
-          programApi.getAll(),
-          enrollmentApi.getAll(),
+        const [customers, prods, orders] = await Promise.all([
+          customerApi.getAll(),
+          productApi.getAll(),
+          orderApi.getAll(),
         ]);
         setStats({
-          students: students.length,
-          programs: progs.length,
-          enrollments: enrollments.length,
+          customers: customers.length,
+          products: prods.length,
+          orders: orders.length,
         });
-        setRecentEnrollments(enrollments.slice(-5).reverse());
-        setPrograms(progs);
+        setRecentOrders(orders.slice(-5).reverse());
+        setProducts(prods);
       } catch {
         // silently handle – services may not be running locally
       } finally {
@@ -55,28 +54,28 @@ export default function DashboardPage() {
 
   const statCards = [
     {
-      label: "Total Students",
-      value: stats?.students ?? 0,
+      label: "Total Customers",
+      value: stats?.customers ?? 0,
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-50",
-      href: "/students",
+      href: "/customers",
     },
     {
-      label: "Total Programs",
-      value: stats?.programs ?? 0,
+      label: "Total Products",
+      value: stats?.products ?? 0,
       icon: BookOpen,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
-      href: "/programs",
+      href: "/products",
     },
     {
-      label: "Total Enrollments",
-      value: stats?.enrollments ?? 0,
+      label: "Total Orders",
+      value: stats?.orders ?? 0,
       icon: GraduationCap,
       color: "text-purple-600",
       bg: "bg-purple-50",
-      href: "/enrollments",
+      href: "/orders",
     }
   ];
 
@@ -110,13 +109,13 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Recent Enrollments */}
+        {/* Recent Orders */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base font-semibold">
-              Recent Enrollments
+              Recent Orders
             </CardTitle>
-            <Link href="/enrollments">
+            <Link href="/orders">
               <Button variant="ghost" size="sm" className="text-blue-600 gap-1">
                 View all <ArrowRight className="h-3 w-3" />
               </Button>
@@ -127,22 +126,22 @@ export default function DashboardPage() {
               Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))
-            ) : recentEnrollments.length === 0 ? (
+            ) : recentOrders.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">
-                No enrollments yet
+                No orders yet
               </p>
             ) : (
-              recentEnrollments.map((e) => (
+              recentOrders.map((e) => (
                 <div
                   key={e.id}
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div>
                     <p className="text-sm font-medium text-slate-900">
-                      {e.student?.name ?? e.studentId}
+                      {e.customer?.name ?? e.customerId}
                     </p>
                     <p className="text-xs text-slate-500">
-                      Program: {e.programId}
+                      Product: {e.productId}
                     </p>
                   </div>
                   <div className="text-right">
@@ -157,13 +156,13 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Programs Overview */}
+        {/* Products Overview */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base font-semibold">
-              Programs Overview
+              Products Overview
             </CardTitle>
-            <Link href="/programs">
+            <Link href="/products">
               <Button variant="ghost" size="sm" className="text-blue-600 gap-1">
                 Manage <ArrowRight className="h-3 w-3" />
               </Button>
@@ -174,14 +173,14 @@ export default function DashboardPage() {
               Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))
-            ) : programs.length === 0 ? (
+            ) : products.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">
-                No programs yet
+                No products yet
               </p>
             ) : (
-              programs.slice(0, 5).map((p) => (
+              products.slice(0, 5).map((p) => (
                 <div
-                  key={p.programId}
+                  key={p.productId}
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div>
@@ -190,7 +189,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-                    {p.programId}
+                    {p.productId}
                   </Badge>
                 </div>
               ))
@@ -206,31 +205,31 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Link href="/students?action=new">
+            <Link href="/customers?action=new">
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 h-12"
               >
                 <Users className="h-4 w-4 text-blue-600" />
-                Add New Student
+                Add New Customer
               </Button>
             </Link>
-            <Link href="/programs?action=new">
+            <Link href="/products?action=new">
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 h-12"
               >
                 <BookOpen className="h-4 w-4 text-emerald-600" />
-                Add New Program
+                Add New Product
               </Button>
             </Link>
-            <Link href="/enrollments?action=new">
+            <Link href="/orders?action=new">
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2 h-12"
               >
                 <GraduationCap className="h-4 w-4 text-purple-600" />
-                New Enrollment
+                New Order
               </Button>
             </Link>
           </div>
@@ -247,9 +246,9 @@ export default function DashboardPage() {
           className="rounded-lg object-contain"
         />
         <div className="text-right space-y-1">
-          <p className="text-sm font-medium text-slate-600">Capstone Project</p>
+          <p className="text-sm font-medium text-slate-600">ECA Project</p>
           <p className="text-xs text-slate-400">
-            &copy; Enterprise Cloud Architecture (ECA), HDSE @ IJSE.
+            &copy; ECA Project, POS System.
           </p>
         </div>
       </div>
