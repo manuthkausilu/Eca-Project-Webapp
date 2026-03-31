@@ -1,10 +1,20 @@
 # Webapp
 
-A modern frontend application for the ECA Campus Management System. It provides a full UI for managing students, academic programs, and enrollments through the API Gateway.
+A Next.js frontend for a POS-style management system built for the ECA module. The app manages customers, products, and orders through an API Gateway.
 
 ## About
 
-This project is part of the Enterprise Cloud Application (ECA) module in the Higher Diploma in Software Engineering (HDSE) program at the Institute of Software Engineering (IJSE). It is intended exclusively for students enrolled in this program.
+This project is part of the Enterprise Cloud Application (ECA) module in the Higher Diploma in Software Engineering (HDSE) program at IJSE.
+
+## Current Scope
+
+The implemented domain is:
+
+- Customers
+- Products
+- Orders
+
+The home route redirects to `/dashboard`.
 
 ## Tech Stack
 
@@ -14,11 +24,11 @@ This project is part of the Enterprise Cloud Application (ECA) module in the Hig
 | React | 19.2.3 |
 | TypeScript | 5 |
 | Tailwind CSS | 4 |
-| ShadCN UI | Component library (Radix UI primitives) |
+| shadcn/ui | UI components (Radix primitives) |
 | React Hook Form | Form state management |
 | Zod | Schema validation |
 | Axios | HTTP client |
-| Lucide React | Icon set |
+| Lucide React | Icons |
 | Sonner | Toast notifications |
 | date-fns | Date formatting |
 
@@ -26,42 +36,86 @@ This project is part of the Enterprise Cloud Application (ECA) module in the Hig
 
 | Page | Path | Description |
 |---|---|---|
-| Dashboard | `/dashboard` | Stats overview, recent enrollments, quick actions |
-| Customers | `/customers` | Create, view, edit, delete customers with avatar display |
-| Products | `/products` | Create, view, edit, delete products (card & table views) |
-| Orders | `/orders` | Create, view, edit, delete orders with product filtering |
+| Dashboard | `/dashboard` | Counts for customers/products/orders, recent orders, quick navigation |
+| Customers | `/customers` | Create, view, edit, delete customers, with image upload and avatar preview |
+| Products | `/products` | Create, view, edit, delete products |
+| Orders | `/orders` | Create, view, edit, delete orders, search and filter by product |
+
+### UI Behavior
+
+- Responsive sidebar + sticky header layout
+- Mobile sidebar toggle support
+- Form dialogs for create/edit flows
+- Confirmation dialog for destructive actions
+- Loading skeletons for async screens
+- Toast feedback for success/error states
+
+## API Integration
+
+Base URL is read from `NEXT_PUBLIC_API_GATEWAY_URL`.
+
+If the variable is missing, the app defaults to:
+
+`http://localhost:7000`
+
+### Endpoints used
+
+- Customers
+	- `GET /api/v1/customers`
+	- `GET /api/v1/customers/{nic}`
+	- `POST /api/v1/customers` (multipart/form-data)
+	- `PUT /api/v1/customers/{nic}` (multipart/form-data)
+	- `DELETE /api/v1/customers/{nic}`
+	- `GET /api/v1/customers/{nic}/picture`
+- Products
+	- `GET /api/v1/products`
+	- `GET /api/v1/products/{productId}`
+	- `POST /api/v1/products`
+	- `PUT /api/v1/products/{productId}`
+	- `DELETE /api/v1/products/{productId}`
+- Orders
+	- `GET /api/v1/orders`
+	- `GET /api/v1/orders/{id}`
+	- `GET /api/v1/orders?productId={productId}`
+	- `POST /api/v1/orders`
+	- `PUT /api/v1/orders/{id}`
+	- `DELETE /api/v1/orders/{id}`
+
+## Validation Rules
+
+- Customer NIC: `^\d{9}[vV]$`
+- Customer name: letters and spaces only
+- Product ID: uppercase letters only (`A-Z`)
+- Order fields: customer, product, and date are required
 
 ## Project Structure
 
-```
+```text
 webapp/
-├── app/
-│   ├── layout.tsx            # Root layout (Sidebar + Header + Toaster)
-│   ├── page.tsx              # Redirects to /dashboard
-│   ├── dashboard/page.tsx    # Dashboard overview
-│   ├── customers/page.tsx     # Customer management
-│   ├── products/page.tsx      # Product management
-│   └── orders/page.tsx        # Order management
-├── components/
-│   ├── layout/
-│   │   ├── sidebar.tsx       # Fixed navigation sidebar
-│   │   └── header.tsx        # Sticky top header
-│   ├── customers/
-│   │   └── customer-form.tsx  # Customer create/edit form
-│   ├── products/
-│   │   └── product-form.tsx   # Product create/edit form
-│   └── orders/
-│       └── order-form.tsx     # Order create/edit form
-├── lib/
-│   └── api.ts                # Axios API client (customerApi, productApi, orderApi)
-├── types/
-│   └── index.ts              # Shared TypeScript types
-└── .env.local                # Environment variables
+|-- app/
+|   |-- layout.tsx
+|   |-- page.tsx
+|   |-- dashboard/page.tsx
+|   |-- customers/page.tsx
+|   |-- products/page.tsx
+|   `-- orders/page.tsx
+|-- components/
+|   |-- layout/
+|   |-- customers/
+|   |-- products/
+|   |-- orders/
+|   `-- ui/
+|-- lib/
+|   `-- api.ts
+|-- types/
+|   `-- index.ts
+|-- public/
+`-- README.md
 ```
 
 ## Environment Variables
 
-Create a `.env.local` file in the `webapp/` directory:
+Create `.env.local` in the project root:
 
 ```env
 NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:7000
@@ -69,33 +123,44 @@ NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:7000
 
 ## Getting Started
 
-Follow the lecture guidelines, refer to the lecture video for more information and how to get started correctly.
+### Prerequisites
 
-> **Prerequisites:** All backend services (Config-Server, Service-Registry, Api-Gateway, Student-Service, Program-Service, Enrollment-Service) must be running before starting the webapp.
+- Node.js 20+ recommended
+- API Gateway running and reachable
+- Backend services for customers, products, and orders available behind the gateway
 
-**Full startup order:**
-1. Config-Server (`9000`)
-2. Service-Registry (`9001`)
-3. Api-Gateway (`7000`)
-4. Student-Service (`8000`)
-5. Program-Service (`8001`)
-6. Enrollment-Service (`8002`)
-7. **Webapp** (`3000`)
-
-Install dependencies:
+### Install
 
 ```bash
 npm install
 ```
 
-Start the development server:
+### Run (Development)
 
 ```bash
 npm run dev
 ```
 
-The application will be available at: `http://localhost:3000`
+Open `http://localhost:3000`.
+
+### Build and Run (Production)
+
+```bash
+npm run build
+npm run start
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Notes
+
+- Remote customer images are configured for `http://localhost:7000/api/v1/customers/**` in Next.js image settings.
+- The layout metadata currently uses the title `Campus Portal | ECA Capstone`.
 
 ## Need Help?
 
-If you encounter any issues, feel free to reach out and start a discussion via the Slack workspace.
+Use your course communication channel (for example, your class Slack workspace) for project support.
